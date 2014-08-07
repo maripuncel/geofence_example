@@ -1,0 +1,9 @@
+.project
+.settings/
+bin/
+gen/
+target/
+.metadata/
+.idea
+src/.DS_Store
+.DS_Store
