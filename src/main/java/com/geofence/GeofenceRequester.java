@@ -10,8 +10,6 @@ import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.geofence.MainActivity.GeofenceUtils;
-import com.geofence.MainActivity.GeofenceUtils.REQUEST_TYPE;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -35,6 +33,10 @@ import com.google.android.gms.location.LocationStatusCodes;
  */
 public class GeofenceRequester implements OnAddGeofencesResultListener, OnRemoveGeofencesResultListener,
         ConnectionCallbacks, OnConnectionFailedListener {
+
+    public enum REQUEST_TYPE {
+        ADD, REMOVE
+    }
 
     private final Activity mActivity;
     private PendingIntent mGeofencePendingIntent;
@@ -114,12 +116,12 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, OnRemove
     @Override
     public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
         if (LocationStatusCodes.SUCCESS == statusCode) {
-            Log.d(GeofenceUtils.APPTAG, "success");
             // Handle success
         } else {
             // Handle error
         }
-        requestDisconnection();
+        mInProgress = false;
+        getLocationClient().disconnect();
     }
 
     @Override
@@ -129,10 +131,6 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, OnRemove
         } else {
             // Handle error
         }
-        requestDisconnection();
-    }
-
-    private void requestDisconnection() {
         mInProgress = false;
         getLocationClient().disconnect();
     }
@@ -142,10 +140,9 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, OnRemove
      */
     @Override
     public void onConnected(Bundle arg0) {
-        Log.d(GeofenceUtils.APPTAG, mActivity.getString(R.string.connected));
+        Log.d(MainActivity.APPTAG, mActivity.getString(R.string.connected));
         switch (mRequestType) {
         case ADD:
-            Log.d(GeofenceUtils.APPTAG, "added");
             mGeofencePendingIntent = createRequestPendingIntent();
             mLocationClient.addGeofences(mCurrentGeofences, mGeofencePendingIntent, this);
             break;
@@ -161,7 +158,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, OnRemove
     @Override
     public void onDisconnected() {
         mInProgress = false;
-        Log.d(GeofenceUtils.APPTAG, mActivity.getString(R.string.disconnected));
+        Log.d(MainActivity.APPTAG, mActivity.getString(R.string.disconnected));
         mLocationClient = null;
     }
 
@@ -185,8 +182,8 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, OnRemove
         if (connectionResult.hasResolution()) {
             try {
                 // This will be handled by Activity.onActivityResult
-                connectionResult.startResolutionForResult(mActivity,
-                        GeofenceUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                connectionResult
+                        .startResolutionForResult(mActivity, MainActivity.CONNECTION_FAILURE_RESOLUTION_REQUEST);
             } catch (SendIntentException e) {
                 e.printStackTrace();
             }

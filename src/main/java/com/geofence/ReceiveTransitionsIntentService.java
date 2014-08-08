@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.geofence.MainActivity.GeofenceUtils;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 
@@ -39,9 +38,9 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
                 // Send a notification containing the transition type
                 NotificationUtils.sendNotification(this, 1, R.drawable.ic_notification, transitionType, transitionType,
-                        transitionType, null, System.currentTimeMillis(), null);
+                        transitionType);
 
-                Log.d(GeofenceUtils.APPTAG, getString(R.string.geofence_transition_notification_title, transitionType));
+                Log.d(MainActivity.APPTAG, getString(R.string.geofence_transition_notification_title, transitionType));
             } else {
                 // Handle invalid transition
             }

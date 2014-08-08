@@ -23,12 +23,9 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
+import com.geofence.GeofenceRequester.REQUEST_TYPE;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.Geofence;
@@ -39,9 +36,9 @@ import com.google.android.gms.location.Geofence;
  * geofence. The menu allows you to delete the geofences stored in persistent
  * memory.
  */
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends Activity {
 
-    private GeofenceUtils.REQUEST_TYPE mRequestType;
+    private REQUEST_TYPE mRequestType;
 
     // Persistent storage for geofences
     private SimpleGeofenceStore mPrefs;
@@ -55,10 +52,19 @@ public class MainActivity extends FragmentActivity {
     // Store the list of geofences to remove
     private List<String> mGeofenceIdsToRemove;
 
+    // Geofence stats
     public String GEOFENCE_ID = "1";
-    private Double GEOFENCE_LAT = 37.7662560;
-    private Double GEOFENCE_LONG = -122.4245390;
+    private Double GEOFENCE_LAT = 37.786564;
+    private Double GEOFENCE_LONG = -122.405494;
     private Float GEOFENCE_RADIUS = 5000f;
+
+    public static final String APPTAG = "Geofence Detection";
+
+    /*
+     * Define a request code to send to Google Play services. This code is
+     * returned in Activity.onActivityResult
+     */
+    public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,14 +85,14 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-        case GeofenceUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST:
+        case CONNECTION_FAILURE_RESOLUTION_REQUEST:
             switch (resultCode) {
             // If Google Play services resolved the problem
             case Activity.RESULT_OK:
-                if (GeofenceUtils.REQUEST_TYPE.ADD == mRequestType) {
+                if (REQUEST_TYPE.ADD == mRequestType) {
                     mGeofenceRequester.setInProgressFlag(false);
                     mGeofenceRequester.addGeofences(mCurrentGeofences);
-                } else if (GeofenceUtils.REQUEST_TYPE.REMOVE == mRequestType) {
+                } else if (REQUEST_TYPE.REMOVE == mRequestType) {
                     mGeofenceRequester.setInProgressFlag(false);
                     mGeofenceRequester.removeGeofencesById(mGeofenceIdsToRemove);
                 }
@@ -103,25 +109,6 @@ public class MainActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         mUIGeofence = mPrefs.getGeofence(GEOFENCE_ID);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.menu_item_clear_geofence_history:
-            mPrefs.clearGeofence(GEOFENCE_ID);
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -160,6 +147,9 @@ public class MainActivity extends FragmentActivity {
         }
 
         mGeofenceIdsToRemove = Collections.singletonList(GEOFENCE_ID);
+
+        mPrefs.clearGeofence(GEOFENCE_ID);
+
         mCurrentGeofences.clear();
 
         // Start the request. Fail if there's already a request in progress
@@ -197,22 +187,6 @@ public class MainActivity extends FragmentActivity {
         } catch (UnsupportedOperationException e) {
             // Handle that previous request hasn't finished.
         }
-    }
-
-    public final static class GeofenceUtils {
-
-        public enum REQUEST_TYPE {
-            ADD, REMOVE
-        }
-
-        public static final String APPTAG = "Geofence Detection";
-
-        /*
-         * Define a request code to send to Google Play services. This code is
-         * returned in Activity.onActivityResult
-         */
-        public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
     }
 
 }

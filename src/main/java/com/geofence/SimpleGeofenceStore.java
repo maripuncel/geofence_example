@@ -92,14 +92,9 @@ public class SimpleGeofenceStore {
     }
 
     /**
-     * Given a Geofence object's ID and the name of a field (for example,
-     * GeofenceUtils.KEY_LATITUDE), return the key name of the object's values
-     * in SharedPreferences.
+     * Create a field key composed of the Geofence id and given fieldname. This
+     * allows for storing multiple geofences in the future.
      * 
-     * @param id
-     *            The ID of a Geofence object
-     * @param fieldName
-     *            The field represented by the key
      * @return The full key name of a value in SharedPreferences
      */
     private String getGeofenceFieldKey(String id, String fieldName) {

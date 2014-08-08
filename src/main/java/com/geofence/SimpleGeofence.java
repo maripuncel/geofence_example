@@ -16,9 +16,6 @@
 
 package com.geofence;
 
-import android.util.Log;
-
-import com.geofence.MainActivity.GeofenceUtils;
 import com.google.android.gms.location.Geofence;
 
 /**
@@ -74,8 +71,6 @@ public class SimpleGeofence {
      * @return A Geofence object
      */
     public Geofence toGeofence() {
-        Log.d(GeofenceUtils.APPTAG, Double.toString(getLatitude()));
-
         return new Geofence.Builder().setRequestId(getId()).setTransitionTypes(mTransitionType)
                 .setCircularRegion(getLatitude(), getLongitude(), getRadius())
                 .setExpirationDuration(mExpirationDuration).build();

@@ -22,7 +22,6 @@
 	<string name="title_activity_geofence">Geofence Example</string>
 
 	<!-- UI -->
-	<string name="menu_item_clear_geofence_history">Clear geofences</string>
 	<string name="register_geofence">Register geofence</string>
 	<string name="unregister_geofence">Remove geofences</string>
 	<string name="geofence_transition_entered">Entered</string>
