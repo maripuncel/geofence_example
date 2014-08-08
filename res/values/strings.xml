@@ -23,7 +23,7 @@
 
 	<!-- UI -->
 	<string name="register_geofence">Register geofence</string>
-	<string name="unregister_geofence">Remove geofences</string>
+	<string name="unregister_geofence">Remove geofence</string>
 	<string name="geofence_transition_entered">Entered</string>
 	<string name="geofence_transition_exited">Exited</string>
 
@@ -31,7 +31,7 @@
 	<string name="connected">Client connected</string>
 	<string name="connection_failed">Connection failed</string>
 	<string name="disconnected">Client disconnected</string>
-	<string name="geofence_transition_notification_title">%1$s geofence(s) </string>
+	<string name="geofence_transition_notification_title">%1$s geofence</string>
 	<string name="geofence_transition_unknown">Unknown transition</string>
 
 </resources>

@@ -40,14 +40,11 @@ public class MainActivity extends Activity {
 
     private REQUEST_TYPE mRequestType;
 
-    // Persistent storage for geofences
-    private SimpleGeofenceStore mPrefs;
-
     // Store a list of geofences to add
     List<Geofence> mCurrentGeofences;
 
     private GeofenceRequester mGeofenceRequester;
-    private SimpleGeofence mUIGeofence;
+    private Geofence mCurrentGeofence;
 
     // Store the list of geofences to remove
     private List<String> mGeofenceIdsToRemove;
@@ -69,7 +66,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPrefs = new SimpleGeofenceStore(this);
         mCurrentGeofences = new ArrayList<Geofence>();
         mGeofenceRequester = new GeofenceRequester(this);
         setContentView(R.layout.activity_main);
@@ -105,18 +101,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mUIGeofence = mPrefs.getGeofence(GEOFENCE_ID);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mPrefs.setGeofence(GEOFENCE_ID, mUIGeofence);
-    }
-
     /**
      * @return true if Google Play services is available, otherwise false
      */
@@ -142,15 +126,15 @@ public class MainActivity extends Activity {
      */
     public void onUnregisterClicked(View view) {
 
-        if (!servicesConnected()) {
+        // Don't remove the geofence is Google Play is unavailabe, or if there
+        // are none already registered
+        if (!servicesConnected() || mCurrentGeofences.isEmpty()) {
             return;
         }
 
         mGeofenceIdsToRemove = Collections.singletonList(GEOFENCE_ID);
-
-        mPrefs.clearGeofence(GEOFENCE_ID);
-
         mCurrentGeofences.clear();
+        mCurrentGeofence = null;
 
         // Start the request. Fail if there's already a request in progress
         try {
@@ -171,16 +155,17 @@ public class MainActivity extends Activity {
      */
     public void onRegisterClicked(View view) {
 
-        if (!servicesConnected()) {
+        // Don't add the geofence is Google Play is unavailabe, or if there is
+        // already one registered
+        if (!servicesConnected() || !mCurrentGeofences.isEmpty()) {
             return;
         }
 
-        mUIGeofence = new SimpleGeofence(GEOFENCE_ID, GEOFENCE_LAT, GEOFENCE_LONG, GEOFENCE_RADIUS,
-                Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
-
-        mPrefs.setGeofence(GEOFENCE_ID, mUIGeofence);
-
-        mCurrentGeofences.add(mUIGeofence.toGeofence());
+        mCurrentGeofence = new Geofence.Builder().setRequestId(GEOFENCE_ID)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setCircularRegion(GEOFENCE_LAT, GEOFENCE_LONG, GEOFENCE_RADIUS)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE).build();
+        mCurrentGeofences.add(mCurrentGeofence);
 
         try {
             mGeofenceRequester.addGeofences(mCurrentGeofences);
